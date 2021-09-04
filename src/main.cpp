@@ -1,11 +1,10 @@
-#include "mainwindow.h"
 
+#include "chessv2.hpp"
 #include <QApplication>
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
-    MainWindow w;
-    w.show();
+    ChessV2 chessv2;
+    chessv2.show();
     return a.exec();
 }
