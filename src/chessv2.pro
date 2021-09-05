@@ -15,10 +15,17 @@ SOURCES += \
 HEADERS += \
     board.hpp \
     chessv2.hpp \
+    consumable.hpp \
     gamestate.hpp \
+    sidepane.hpp \
+    sidepane.hpp \
     menu.hpp \
+    piece.hpp \
+    randomint.hpp \
     square.hpp \
-    terrain.hpp
+    squareobject.hpp \
+    terrain.hpp \
+    test.hpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

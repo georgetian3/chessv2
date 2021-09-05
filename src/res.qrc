@@ -6,5 +6,20 @@
         <file>res/img/grass.jpg</file>
         <file>res/img/rock.jpg</file>
         <file>res/img/grass_border.jpg</file>
+        <file>res/img/bishop_b.png</file>
+        <file>res/img/bishop_w.png</file>
+        <file>res/img/king_b.png</file>
+        <file>res/img/king_w.png</file>
+        <file>res/img/knight_b.png</file>
+        <file>res/img/knight_w.png</file>
+        <file>res/img/pawn_b.png</file>
+        <file>res/img/pawn_w.png</file>
+        <file>res/img/queen_b.png</file>
+        <file>res/img/queen_w.png</file>
+        <file>res/img/rook_b.png</file>
+        <file>res/img/rook_w.png</file>
+        <file>res/img/placeholder.png</file>
+        <file>res/img/fog.png</file>
+        <file>res/img/rock_border.png</file>
     </qresource>
 </RCC>
