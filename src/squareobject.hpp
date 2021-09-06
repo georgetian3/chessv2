@@ -7,18 +7,38 @@ class SquareObject {
 
 protected:
 
-    std::string name;
-    std::string sound;
-    int x;
-    int y;
+    bool blocksVision_ = false;
+    QString name_;
+    QString description_;
+    QString sound;
+    QString info_;
+
+
+    QPixmap img_ = QPixmap(":/res/img/placeholder.png");
+
 
 public:
 
-    QPixmap pix = QPixmap(":/res/img/placeholder.png");
 
     SquareObject() {
-        pix = pix.scaledToHeight(100);
+        img_ = img_.scaledToHeight(100);
 
+    }
+
+    bool blocksVision() {
+        return blocksVision_;
+    }
+
+    const QPixmap& img() const {
+        return img_;
+    }
+
+    const QString name() const {
+        return name_;
+    }
+
+    QString info() const {
+        return name_ + '\n' + description_;
     }
 
 

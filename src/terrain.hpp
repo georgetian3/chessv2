@@ -12,8 +12,8 @@ class Terrain: public SquareObject {
 
 protected:
 
-    bool occupiable_;
-    bool hidesOccupant;
+    bool occupiable_ = true;
+    bool hidesOccupant_;
 
 public:
 
@@ -27,32 +27,33 @@ public:
 
 class Rock: public Terrain {
 
-    bool occupiable = false;
-
 public:
     Rock() {
-        pix = QPixmap(":/res/img/rock_border.png").scaledToHeight(100);
+        blocksVision_ = true;
+        occupiable_ = false;
+        img_ = QPixmap(":/res/img/rock_border.png");
     }
+    //QPixmap
 
 };
 
 class Bush: public Terrain {
 
-    bool occupiable = true;
-    bool hidesOccupant = false;
+    bool occupiable_ = true;
+    bool hidesOccupant_ = false;
 
 };
 
 class Grass: public Terrain {
 
-    bool occupiable = true;
-    bool hidesOccupant = false;
 
+    //QPixmap img = QPixmap(":/res/img/grass_border.png");
 public:
     Grass() {
-        pix = QPixmap(":/res/img/grass_border.jpg").scaledToHeight(100);
+        occupiable_ = true;
+        hidesOccupant_ = false;
+        img_ = QPixmap(":/res/img/grass_border.jpg");
     }
-
 
 };
 

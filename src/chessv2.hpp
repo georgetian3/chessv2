@@ -6,15 +6,20 @@
 #include "gamestate.hpp"
 #include "menu.hpp"
 #include <QtWidgets>
+#include <QMediaPlayer>
 
 class ChessV2: public QGraphicsView {
 
     Board *board = nullptr;
-    SidePane *sidepane = nullptr;
+    SidePane *sidePane = nullptr;
+    QMediaPlayer *bgm = nullptr;
 
 public:
 
     ChessV2(QWidget *parent = nullptr): QGraphicsView(parent) {
+        //bgm = new QMediaPlayer;
+        //bgm->setMedia(QUrl("qrc:res/audio/bgm.mp3"));
+        //bgm->play();
 
         qDebug() << "ChessV2 ctor";
 
@@ -23,12 +28,18 @@ public:
         setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-        sidepane = new SidePane();
-        sidepane->setText("test");
-
 
         board = new Board();
         setScene(board);
+
+        sidePane = new SidePane();
+        sidePane->setText("test");
+
+
+
+
+
+        connect(board, SIGNAL(pieceClicked(Piece*)), sidePane, SLOT(onPieceClick(Piece*)));
 
         fitInView(QRectF(0, 0, Constants::totalLength, Constants::totalWidth), Qt::KeepAspectRatio);
 
@@ -46,7 +57,7 @@ public:
 
     void drawForeground(QPainter *painter, const QRectF &rect) {
         painter->resetTransform();
-        sidepane->render(painter, sidepane->itemsBoundingRect());
+        sidePane->render(painter, sidePane->itemsBoundingRect());
     }
 
 

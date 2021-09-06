@@ -9,24 +9,26 @@
 #include <QtWidgets>
 
 enum class TerrainType {grass, rock, bush};
-enum class PieceType {pawn, rook, knight, bishop, queen, king};
+
+enum class VisionType {unseen, seen, visible};
 
 class Square: public QObject, public QGraphicsItem {
 
     Q_OBJECT
 
-    QPixmap fog;
+    QPixmap fog = QPixmap(":/res/img/fog.png");
     QPixmap moveMask = QPixmap(Constants::squareSize, Constants::squareSize);
     QPixmap fogMask = QPixmap(Constants::squareSize, Constants::squareSize);
     const QPoint position_;
 
-    bool movable_ = false;
+    bool highlight_ = false;
     Consumable *consumable = nullptr;
     Piece *piece_ = nullptr;
     Terrain *terrain_ = nullptr;
 
-    int playerVision_ = 2; // 0: never warded, 1: previously warded, 2: currently warded
-    int enemyVision;
+    VisionType playerVision_ = VisionType::visible;
+    VisionType enemyVision;
+    bool blocksVision_ = false;
 
 
 public:
@@ -34,10 +36,10 @@ public:
     Square(QPoint position, QGraphicsItem *parent = nullptr): position_(position), QGraphicsItem(parent) {
         moveMask.fill(QColor(255, 0, 0, 100));
         fogMask.fill(QColor(0, 0, 0, 100));
-        fog = QPixmap(":/res/img/placeholder.png");
     }
 
     void mousePressEvent(QGraphicsSceneMouseEvent *event) override {
+        qDebug() << "Clicked square" << position_.x() << position_.y();
         emit squareClicked(this);
         QGraphicsItem::mousePressEvent(event);
     }
@@ -47,20 +49,20 @@ public:
     }
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *item, QWidget *widget) override {
-        if (playerVision_ == 0) {
+        if (playerVision_ == VisionType::unseen) {
             painter->drawPixmap(0, 0, Constants::squareSize, Constants::squareSize, fog);
             return;
         }
-        painter->drawPixmap(0, 0, Constants::squareSize, Constants::squareSize, terrain_->pix);
+        painter->drawPixmap(0, 0, Constants::squareSize, Constants::squareSize, terrain_->img());
         if (piece_) {
-            painter->drawPixmap(0, 0, Constants::squareSize, Constants::squareSize, piece_->pix);
+            painter->drawPixmap(0, 0, Constants::squareSize, Constants::squareSize, piece_->img());
         } else if (consumable) {
-            painter->drawPixmap(0, 0, Constants::squareSize, Constants::squareSize, consumable->pix);
+            painter->drawPixmap(0, 0, Constants::squareSize, Constants::squareSize, consumable->img());
         }
-        if (playerVision_ == 1) {
+        if (playerVision_ == VisionType::seen) {
             painter->drawPixmap(0, 0, Constants::squareSize, Constants::squareSize, fogMask);
         }
-        if (movable_) {
+        if (highlight_) {
             painter->drawPixmap(0, 0, Constants::squareSize, Constants::squareSize, moveMask);
         }
 
@@ -72,16 +74,12 @@ public:
         return position_;
     }
 
-
-
-    bool movable() const {
-        return movable_;
+    void highlight(bool value) {
+        highlight_ = value;
     }
-
-    bool setMovable(bool movable) {
-        movable_ = movable;
+    bool highlighted() const {
+        return highlight_;
     }
-
     bool movePieceTo(Square* newSquare) {
         if (newSquare->piece_) {
             return false;
@@ -91,31 +89,36 @@ public:
         return true;
     }
 
-    int playerVision() const {
+    VisionType playerVision() const {
         return playerVision_;
     }
-    void setPlayerVision(int value) {
-        if (value < 0) {
-            playerVision_ = 0;
-        } else if (value > 2) {
-            playerVision_ = 2;
-        } else {
-            playerVision_ = value;
-        }
+    void setPlayerVision(VisionType visionType) {
+        playerVision_ = visionType;
     }
 
-    bool getPiece() const {
-        return piece_;
+    bool inRange(Square* square) {
+        if (!piece_) {
+            return false;
+        }
+        if ((position_ - square->position_).manhattanLength() <= piece_->getStat("range")) {
+            return true;
+        }
+        return false;
     }
 
     bool occupiable() const  {
-        return !static_cast<bool>(piece_) && terrain_->occupiable();
+        //qDebug() << "Square" << position_ << !piece_ << terrain_->occupiable();
+        return !piece_ && terrain_->occupiable();
     }
 
+    bool blocksVision() const {
+        return blocksVision_;
+    }
     void setTerrain(TerrainType terrainType) {
         switch (terrainType) {
             case TerrainType::grass:
                 terrain_ = new Grass();
+
                 break;
             case TerrainType::rock:
                 terrain_ = new Rock();
@@ -123,10 +126,42 @@ public:
             default:
                 break;
         }
+        blocksVision_ |= terrain_->blocksVision();
     }
-
+    Terrain* terrain() const {
+        return terrain_;
+    }
     void setPiece(PieceType pieceType) {
+        switch (pieceType) {
+            case PieceType::pawn:
+                piece_ = new Pawn();
+                break;
+            case PieceType::rook:
+                piece_ = new Rook();
+                break;
+            case PieceType::knight:
+                piece_ = new Knight();
+                break;
+            case PieceType::bishop:
+                piece_ = new Bishop();
+                break;
+            case PieceType::queen:
+                piece_ = new Queen();
+                break;
+            case PieceType::king:
+                piece_ = new King();
+                break;
+            case PieceType::minion:
+                piece_ = new Minion();
+                break;
+            default:
+                qDebug() << "Square::setPiece - unrecognized piece";
+        }
+        blocksVision_ |= piece_->blocksVision();
 
+    }
+    Piece* piece() const {
+        return piece_;
     }
 
 signals:

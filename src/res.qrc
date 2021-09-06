@@ -21,5 +21,10 @@
         <file>res/img/placeholder.png</file>
         <file>res/img/fog.png</file>
         <file>res/img/rock_border.png</file>
+        <file>res/audio/bgm.mp3</file>
+        <file>res/img/ability.png</file>
+        <file>res/img/attack.png</file>
+        <file>res/img/skip.png</file>
+        <file>res/img/select.png</file>
     </qresource>
 </RCC>
