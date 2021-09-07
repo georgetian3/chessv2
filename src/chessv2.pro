@@ -9,23 +9,30 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    board.cpp \
+    chessv2.cpp \
+    entity.cpp \
     gamestate.cpp \
-    main.cpp
+    main.cpp \
+    piece.cpp \
+    square.cpp
 
 HEADERS += \
     board.hpp \
     chessv2.hpp \
+    constants.hpp \
     consumable.hpp \
+    entity.hpp \
     gamestate.hpp \
+    imagebutton.hpp \
+    rangemarker.hpp \
     sidepane.hpp \
     sidepane.hpp \
     menu.hpp \
     piece.hpp \
     randomint.hpp \
     square.hpp \
-    squareobject.hpp \
-    terrain.hpp \
-    test.hpp
+    terrain.hpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

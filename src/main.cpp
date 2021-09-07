@@ -1,6 +1,4 @@
-
 #include "chessv2.hpp"
-#include "test.hpp"
 #include <QApplication>
 
 int main(int argc, char *argv[]) {

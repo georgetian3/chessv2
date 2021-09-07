@@ -26,10 +26,6 @@ public:
 
     }
 
-    void mousePressEvent(QGraphicsSceneMouseEvent *event) override {
-        qDebug() << "Clicked sidepane";
-    }
-
 public slots:
 
     void setText(const QString& newText) {

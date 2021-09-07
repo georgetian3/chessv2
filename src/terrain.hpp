@@ -1,19 +1,20 @@
 #ifndef TERRAIN_HPP
 #define TERRAIN_HPP
 
-#include "squareobject.hpp"
+#include "entity.hpp"
 #include <QtWidgets>
 
 
 
 
 
-class Terrain: public SquareObject {
+class Terrain: public Entity {
 
 protected:
-
+    int z_ = 0;
     bool occupiable_ = true;
     bool hidesOccupant_;
+    bool showOccupiable_ = false;
 
 public:
 
@@ -31,7 +32,7 @@ public:
     Rock() {
         blocksVision_ = true;
         occupiable_ = false;
-        img_ = QPixmap(":/res/img/rock_border.png");
+        image_ = QPixmap(":/res/img/rock_border.png");
     }
     //QPixmap
 
@@ -52,7 +53,7 @@ public:
     Grass() {
         occupiable_ = true;
         hidesOccupant_ = false;
-        img_ = QPixmap(":/res/img/grass_border.jpg");
+        image_ = QPixmap(":/res/img/grass_border.jpg");
     }
 
 };

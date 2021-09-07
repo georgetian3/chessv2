@@ -1,12 +1,13 @@
 #ifndef CONSUMABLE_HPP
 #define CONSUMABLE_HPP
 
-#include "squareobject.hpp"
+#include "entity.hpp"
 #include <QtWidgets>
 
-class Consumable: public SquareObject {
+class Consumable: public Entity {
     std::string stat;
     int amount;
+    int z_ = 1;
 };
 
 
