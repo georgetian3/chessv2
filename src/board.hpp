@@ -1,9 +1,9 @@
 #ifndef BOARD_HPP
 #define BOARD_HPP
 
+#include "menu.hpp"
 #include "imagebutton.hpp"
 #include "rangemarker.hpp"
-#include "sidepane.hpp"
 #include "consumable.hpp"
 #include "piece.hpp"
 #include "terrain.hpp"
@@ -53,26 +53,26 @@ class Board: public QGraphicsScene {
     std::vector<std::vector<Square*>> squares;
 
     Piece* hoveredPiece = nullptr;
+    Piece* focusedPiece = nullptr;
     Piece* selectedPiece = nullptr;
 
     int dist(Square* a, Square* b) {
         return (a->coordinates() - b->coordinates()).manhattanLength();
     }
 
-
-    void showMoves(Piece *piece);
+    void showRange(Piece *piece);
+    void showMoves();
     void movePiece(Square* oldSquare, Square* newSquare);
     void updateVision();
     std::vector<Square*> getVisibleSquares(Square *square);
-    bool hasVision(Piece *a, Piece *b);
+    bool hasVision(QPoint a, QPoint b);
+    QGraphicsPolygonItem rangeIndicator;
 
-    ImageButton *attackButton;
-    ImageButton *abilityButton;
-    ImageButton *selectButton;
-    ImageButton *skipButton;
-    QGraphicsTextItem *infoText;
+    QGraphicsPixmapItem selectedMask_;
 
+    Menu menu;
 
+    void showSelected();
 
 public:
 
@@ -86,72 +86,131 @@ public:
 
 public slots:
 
-    void onPieceHoverEnter(Piece *piece) {
-        hoveredPiece = piece;
-        if (!selectedPiece && piece->playerPiece()) {
-            selectButton->setCoordinates(piece->coordinates(), CornerType::nw);
-            selectButton->show();
-        }
-        piece->showRange(true);
+    void onPieceClick(Piece *piece) {
 
-        //piece->showStats(true);
-        if (selectedPiece && !piece->playerPiece() && selectedPiece->inRange(piece)) {
-            attackButton->setCoordinates(piece->coordinates());
-            attackButton->show();
+    }
+
+    void onPieceHoverEnter(Piece *piece) {
+
+        //qDebug() << "Hover enter" << piece->name();
+        hoveredPiece = piece;
+        if (focusedPiece) {
+            return;
         }
+
+        showRange(piece);
+        menu.setText(piece->info());
+        setMenu(squares[piece->coordinates().x()][piece->coordinates().y()]);
+        /*
+        if (selectedPiece) {
+            if (piece == selectedPiece) {
+                menu.showSkip(true);
+            } else if (!piece->playerPiece() && selectedPiece->inRange(piece)) {
+                menu.showAttack(true);
+            }
+        } else {
+            if (piece->playerPiece()) {
+                menu.showSelect(true);
+            }
+        }
+        */
+
+
         update();
     }
     void onPieceHoverLeave(Piece *piece) {
-        selectButton->hide();
-        attackButton->hide();
-        piece->showRange(false);
-        //piece->showStats(false);
+        //qDebug() << "Hover leave";
+        if (focusedPiece) {
+            return;
+        }
+        menu.reset();
+
+        showRange(nullptr);
+
         update();
+
     }
-
-
 
 
     void onSquareClick(Square *square) {
         qDebug() << "Clicked square" << square->coordinates();
+
         if (selectedPiece && square->occupiable()) {
             movePiece(squares[selectedPiece->coordinates().x()][selectedPiece->coordinates().y()], square);
+            showMoves();
         }
+        setMenu(square);
+        setFocusedPiece(square->piece());
+        showSelected();
+        update();
     }
 
 
     void onAttackClick() {
-        selectedPiece->attack(hoveredPiece);
+        selectedPiece->useAttack(focusedPiece);
+        menu.setText(focusedPiece->info());
     }
 
     void onAbilityClick() {
+        selectedPiece->useSpell(focusedPiece);
+        menu.setText(focusedPiece->info());
+    }
 
+    void setMenu(Square *square) {
+        menu.reset();
+        if (!square->piece()) {
+            return;
+        }
+        menu.setText(square->piece()->info());
+        if (selectedPiece) {
+            if (square->piece() == selectedPiece) {
+                menu.showSkip(true);
+            } else if (!square->piece()->playerPiece() && selectedPiece->inRange(square->piece())) {
+                menu.showAttack(true);
+            }
+        } else {
+            if (square->piece()->playerPiece()) {
+                menu.showSelect(true);
+            }
+        }
+    }
+
+    void setFocusedPiece(Piece *piece) {
+        focusedPiece = piece;
+        if (piece) {
+            showRange(focusedPiece);
+            menu.setText(focusedPiece->info());
+        }
+        update();
     }
 
 
     void onSelectClick() {
-        qDebug() << "Selected piece" << hoveredPiece->name();
-        selectButton->hide();
-        selectedPiece = hoveredPiece;
-        selectedPiece->showSelected(true);
-        skipButton->setCoordinates(selectedPiece->coordinates(), CornerType::nw);
-        skipButton->show();
-        showMoves(selectedPiece);
-        //update();
+        selectedPiece = focusedPiece;
+        onSelectChange();
+
     }
 
     void onSkipClick() {
-        qDebug() << "Clicked skip";
-        playerTurn = false;
-        selectedPiece->showSelected(false);
         selectedPiece = nullptr;
-        showMoves(nullptr);
-        skipButton->hide();
+        onSelectChange();
+    }
+
+    void onSelectChange() {
+        showSelected();
+        showMoves();
+        if (selectedPiece) {
+            setMenu(squares[selectedPiece->coordinates().x()][selectedPiece->coordinates().y()]);
+        }
+        //playerTurn = false;
+
         update();
     }
 
-    void onViewPan(QPoint delta) {
-        qDebug() << "View panned by" << delta;
+    void onViewChange(QPointF map, double scale) {
+        menu.setScale(menu.scale() / scale);
+        menu.setPos(map);
+
     }
 
 

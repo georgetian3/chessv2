@@ -5,24 +5,26 @@
 #include "imagebutton.hpp"
 #include <QtWidgets>
 #include <unordered_map>
-#include "rangemarker.hpp"
 
 enum class PieceType {pawn, rook, knight, bishop, queen, king, minion};
-
-
-
 
 class Piece: public Entity {
 
     Q_OBJECT
 
+    QString capitalizeFirst(QString text) const {
+        text[0] = text[0].toUpper();
+        return text;
+    }
+
+
+
 protected:
 
     bool selected_ = false;
 
-
-
     int z_ = 1;
+    QString spellDescription_;
     std::unordered_map<QString, int> stats_ = {
         {"health", 100},
         {"damage", 20},
@@ -31,38 +33,14 @@ protected:
         {"range", 3},
     };
 
-    std::string ability_description;
-
-    void setStat(const QString& stat, int amount) {
-        auto it = stats_.find(stat);
-        if (it != stats_.end()) {
-            (*it).second += amount;
-            if ((*it).second < 0) {
-                (*it).second = 0;
-            }
-        }
-    }
-
-
-    //virtual void ability(Piece& piece) = 0;
-
-    QString capitalizeFirst(QString text) const {
-        text[0] = text[0].toUpper();
-        return text;
-    }
-
-    QVector<QPoint> rangePoints;
-    bool showRange_ = false;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem*, QWidget*);
-
 
 
 
     bool playerPiece_ = true;
 
-
+/*
     void showActions() {
-        /*
+
         if (!square || !square->piece()) {
             qDebug() << "Removing buttons";
             removeItem(attackButton);
@@ -77,33 +55,37 @@ protected:
                              QPointF(abilityButton->boundingRect().width() / 2, abilityButton->boundingRect().height() / 2));
         addItem(attackButton);
         addItem(abilityButton);
-        */
+
 
     }
+ */
 
+    void mousePressEvent(QGraphicsSceneMouseEvent *event);
+    void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
+    void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
 
 public:
 
     Piece();
 
+
     bool inRange(Piece* piece);
     QString info() const;
     bool playerPiece() const;
     int getStat(const QString& stat) const;
-    void mousePressEvent(QGraphicsSceneMouseEvent *event);
-    void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
-    void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
+
 
     const std::unordered_map<QString, int>& stats() const;
-    //void select(bool value);
 
-    void showRange(bool show);
     void showSelected(bool show);
 
-    void attack(Piece *piece) {
+    void useAttack(Piece *piece) {
         piece->setStat("health", -1 * stats_["damage"]);
-        piece->update();
     }
+    void useSpell(Piece *piece) {
+        ;
+    }
+    void setStat(const QString& stat, int amount);
 
 public slots:
 
@@ -121,7 +103,7 @@ signals:
 class Pawn: public Piece {
 public:
     Pawn() {
-        image_ = QPixmap(":/res/img/pawn_w.png");
+        setImage(":/res/img/pawn_w.png");
         name_ = "Pawn";
         playerPiece_ = true;
     }
@@ -130,7 +112,7 @@ public:
 class Rook: public Piece {
 public:
     Rook() {
-        image_ = QPixmap(":/res/img/rook_w.png");
+        setImage(":/res/img/rook_w.png");
         name_ = "Rook";
         playerPiece_ = true;
     }
@@ -138,7 +120,7 @@ public:
 class Knight: public Piece {
 public:
     Knight() {
-        image_ = QPixmap(":/res/img/knight_w.png");
+        setImage(":/res/img/knight_w.png");
         name_ = "Knight";
         playerPiece_ = true;
     }
@@ -146,7 +128,7 @@ public:
 class Bishop: public Piece {
 public:
     Bishop() {
-        image_ = QPixmap(":/res/img/bishop_w.png");
+        setImage(":/res/img/bishop_w.png");
         name_ = "Bishop";
         playerPiece_ = true;
     }
@@ -154,7 +136,7 @@ public:
 class Queen: public Piece {
 public:
     Queen() {
-        image_ = QPixmap(":/res/img/queen_w.png");
+        setImage(":/res/img/queen_w.png");
         name_ = "Queen";
         playerPiece_ = true;
     }
@@ -162,7 +144,7 @@ public:
 class King: public Piece {
 public:
     King() {
-        image_ = QPixmap(":/res/img/king_w.png");
+        setImage(":/res/img/king_w.png");
         name_ = "King";
         playerPiece_ = true;
     }
@@ -172,7 +154,7 @@ public:
 class Minion: public Piece {
 public:
     Minion() {
-        image_ = QPixmap(":/res/img/pawn_b.png");
+        setImage(":/res/img/pawn_b.png");
         name_ = "Minion";
         playerPiece_ = false;
     }

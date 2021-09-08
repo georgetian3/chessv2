@@ -9,12 +9,9 @@ class Entity: public QObject, public QGraphicsItem {
 
 protected:
 
+    QGraphicsPixmapItem image_;
 
-    QPixmap image_ = QPixmap(":/res/img/placeholder.png");
-    QPixmap mask_ = QPixmap(Constants::squareSize, Constants::squareSize);
-    void makePixmap();
-    QRectF boundingRect() const override;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *item, QWidget *widget) override;
+    //void paint(QPainter *painter, const QStyleOptionGraphicsItem *item, QWidget *widget) override;
 
     QPoint coordinates_;
     bool blocksVision_ = false;
@@ -24,13 +21,17 @@ protected:
     QString info_;
     int z_;
 
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem*, QWidget*) override;
+    QRectF boundingRect() const override {
+        return QRectF(0, 0, Constants::squareSize, Constants::squareSize);
+    }
+
 public:
 
     Entity();
 
-
+    void setImage(const QString& imagePath = ":/res/img/placeholder.png");
     bool blocksVision();
-    QString name() const;
     QString info() const;
     QPoint coordinates() const;
     void setCoordinates(const QPoint& coordinates);

@@ -2,36 +2,41 @@
 
 
 
-Square::Square(QPoint coordinates, QGraphicsItem *parent): coordinates_(coordinates), QGraphicsItem(parent) {
+Square::Square(QPoint coordinates, QGraphicsItem *parent): coordinates_(coordinates), QGraphicsItem(parent)
+
+{
+
+    setZValue(2);
+
+    QPixmap pix(Constants::squareSize, Constants::squareSize);
+
+    pix.fill(QColor(255, 0, 0, 100));
+    moveMask_.setPixmap(pix);
+    moveMask_.hide();
+
+    pix.fill(QColor(0, 0, 0, 100));
+    seenMask_.setPixmap(pix);
+
+    setPlayerVision(VisionType::unseen);
+
+
     setPos(coordinates_ * Constants::squareSize);
-    moveMask.fill(QColor(255, 0, 0, 100));
-    fogMask.fill(QColor(0, 0, 0, 100));
-    setZValue(1);
+
+
 }
 
 void Square::mousePressEvent(QGraphicsSceneMouseEvent *event) {
-    //qDebug() << "Clicked square" << position_.x() << position_.y();
+    //qDebug() << "Clicked square" << coordinates_;
     emit squareClicked(this);
     QGraphicsItem::mousePressEvent(event);
 }
 
-QRectF Square::boundingRect() const {
-    return QRectF(0, 0, Constants::squareSize, Constants::squareSize);
-}
 
 void Square::paint(QPainter *painter, const QStyleOptionGraphicsItem*, QWidget*) {
-    if (playerVision_ == VisionType::unseen) {
-        painter->drawPixmap(0, 0, Constants::squareSize, Constants::squareSize, fog);
-        return;
-    } else if (playerVision_ == VisionType::seen) {
-        painter->drawPixmap(0, 0, Constants::squareSize, Constants::squareSize, fogMask);
+    if (moveMask_.isVisible()) {
+        //painter->drawPixmap(0, 0, Constants::squareSize, Constants::squareSize, moveMask_.pixmap());
     }
-    if (showOccupiable_) {
-        painter->drawPixmap(0, 0, Constants::squareSize, Constants::squareSize, moveMask);
-    }
-
 }
-
 
 
 
@@ -51,21 +56,28 @@ VisionType Square::playerVision() const {
 }
 void Square::setPlayerVision(VisionType visionType) {
     playerVision_ = visionType;
+    unseenMask_.hide();
+    seenMask_.hide();
+    if (visionType == VisionType::unseen) {
+        unseenMask_.show();
+    } else if (visionType == VisionType::seen) {
+        seenMask_.show();
+    }
 }
 
 
 
 bool Square::occupiable() const  {
-    qDebug() << "Square" << coordinates_ << !piece_ << terrain_->occupiable();
     return !piece_ && terrain_->occupiable();
 }
 void Square::showOccupiable(int show) {
-    showOccupiable_ = show;
+    moveMask_.setVisible(show);
     update();
 }
 
 bool Square::blocksVision() const {
-    return blocksVision_;
+    return (terrain_ ? terrain_->blocksVision() : false) || false &&
+           (piece_ ? piece_->blocksVision() : false);
 }
 void Square::setTerrain(Terrain *terrain) {
     if (terrain_ && terrain) {
@@ -73,18 +85,11 @@ void Square::setTerrain(Terrain *terrain) {
     }
     terrain_ = terrain;
 
-    updateBlocksVision();
-
 }
 Terrain* Square::terrain() const {
     return terrain_;
 }
 
-void Square::updateBlocksVision() {
-    blocksVision_ =
-        (terrain_ ? terrain_->blocksVision() : false) ||
-        (piece_ ? piece_->blocksVision() : false);
-}
 
 void Square::setPiece(Piece *piece) {
     if (piece_ && piece) {
@@ -93,10 +98,19 @@ void Square::setPiece(Piece *piece) {
     piece_ = piece;
 
 
-
-    updateBlocksVision();
-
 }
 Piece* Square::piece() const {
     return piece_;
+}
+
+void Square::setConsumable(Consumable *consumable) {
+    if (consumable_ && consumable) {
+        return;
+    }
+    consumable_ = consumable;
+
+
+}
+Consumable* Square::consumable() const {
+    return consumable_;
 }

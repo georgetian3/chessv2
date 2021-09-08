@@ -8,7 +8,7 @@
 #include <iostream>
 #include <QtWidgets>
 
-enum class TerrainType {grass, rock, bush};
+
 
 enum class VisionType {unseen, seen, visible};
 
@@ -17,24 +17,27 @@ class Square: public QObject, public QGraphicsItem {
 
     Q_OBJECT
 
-    QPixmap fog = QPixmap(":/res/img/fog.png");
-    QPixmap moveMask = QPixmap(Constants::squareSize, Constants::squareSize);
-    QPixmap fogMask = QPixmap(Constants::squareSize, Constants::squareSize);
+    QGraphicsPixmapItem unseenMask_ = QGraphicsPixmapItem(QPixmap(":/res/img/cloud.png").scaled(Constants::squareSize, Constants::squareSize), this);
+    QGraphicsPixmapItem seenMask_ = QGraphicsPixmapItem(this);
+    QGraphicsPixmapItem moveMask_ = QGraphicsPixmapItem(this);
     const QPoint coordinates_;
 
     bool showOccupiable_ = false;
-    Consumable *consumable = nullptr;
+    Consumable *consumable_ = nullptr;
     Piece *piece_ = nullptr;
     Terrain *terrain_ = nullptr;
 
-    VisionType playerVision_ = VisionType::visible;
+    VisionType playerVision_ = VisionType::seen;
     VisionType enemyVision_;
     bool blocksVision_ = false;
 
 
     void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
-    QRectF boundingRect() const override;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *item, QWidget *widget) override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem* item, QWidget* widget) override;
+
+    QRectF boundingRect() const override {
+        return QRectF(0, 0, Constants::squareSize, Constants::squareSize);
+    }
 
 
 public:
@@ -42,8 +45,6 @@ public:
     Square(QPoint coordinates, QGraphicsItem *parent = nullptr);
 
     QPoint coordinates() const;
-    //void setCoordinates(const QPoint& coordinates);
-
     VisionType playerVision() const;
     void setPlayerVision(VisionType visionType);
 
@@ -53,12 +54,13 @@ public:
     void showOccupiable(int show);
 
     bool blocksVision() const;
-    void updateBlocksVision();
 
     void setTerrain(Terrain *terrain);
     Terrain* terrain() const;
     void setPiece(Piece *piece);
     Piece* piece() const;
+    void setConsumable(Consumable *consumable);
+    Consumable* consumable() const;
 
 signals:
 

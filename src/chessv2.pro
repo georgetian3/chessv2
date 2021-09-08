@@ -26,8 +26,6 @@ HEADERS += \
     gamestate.hpp \
     imagebutton.hpp \
     rangemarker.hpp \
-    sidepane.hpp \
-    sidepane.hpp \
     menu.hpp \
     piece.hpp \
     randomint.hpp \

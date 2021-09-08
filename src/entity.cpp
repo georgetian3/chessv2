@@ -1,14 +1,13 @@
 #include "entity.hpp"
 
-QRectF Entity::boundingRect() const {
-    return QRectF(0, 0, Constants::squareSize, Constants::squareSize);
-}
+
 void Entity::paint(QPainter *painter, const QStyleOptionGraphicsItem*, QWidget*) {
-    painter->drawPixmap(0, 0, Constants::squareSize, Constants::squareSize, image_);
+    //painter->drawPixmap(0, 0, Constants::squareSize, Constants::squareSize, image_);
 }
-Entity::Entity() {
+
+Entity::Entity(): image_(QGraphicsPixmapItem(this)) {
+    //qDebug() << "entity constructor";
     setAcceptHoverEvents(true);
-    mask_.fill(QColor(0, 255, 0, 100));
 }
 
 
@@ -17,16 +16,13 @@ bool Entity::blocksVision() {
     return blocksVision_;
 }
 
-QString Entity::name() const {
-    return name_;
-}
-
 QString Entity::info() const {
     return name_ + '\n' + description_;
 }
 
-
-
+void Entity::setImage(const QString &imagePath) {
+    image_.setPixmap(QPixmap(imagePath).scaled(Constants::squareSize, Constants::squareSize));
+}
 
 QPoint Entity::coordinates() const {
     return coordinates_;

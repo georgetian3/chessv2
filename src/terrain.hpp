@@ -7,6 +7,7 @@
 
 
 
+enum class TerrainType {grass, rock, bush};
 
 class Terrain: public Entity {
 
@@ -17,6 +18,10 @@ protected:
     bool showOccupiable_ = false;
 
 public:
+
+    Terrain() {
+        setZValue(0);
+    }
 
     bool occupiable() const {
         return occupiable_;
@@ -30,11 +35,10 @@ class Rock: public Terrain {
 
 public:
     Rock() {
+        setImage(":/res/img/rock_border.png");
         blocksVision_ = true;
         occupiable_ = false;
-        image_ = QPixmap(":/res/img/rock_border.png");
     }
-    //QPixmap
 
 };
 
@@ -47,13 +51,11 @@ class Bush: public Terrain {
 
 class Grass: public Terrain {
 
-
-    //QPixmap img = QPixmap(":/res/img/grass_border.png");
 public:
     Grass() {
+        setImage(":/res/img/grass_border.jpg");
         occupiable_ = true;
         hidesOccupant_ = false;
-        image_ = QPixmap(":/res/img/grass_border.jpg");
     }
 
 };

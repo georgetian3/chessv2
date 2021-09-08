@@ -26,5 +26,13 @@
         <file>res/img/attack.png</file>
         <file>res/img/skip.png</file>
         <file>res/img/select.png</file>
+        <file>res/img/scroll.png</file>
+        <file>res/img/piece.png</file>
+        <file>res/img/binoculars.png</file>
+        <file>res/img/cloud.png</file>
+        <file>res/img/drink.png</file>
+        <file>res/img/firstaid.png</file>
+        <file>res/img/shoes.png</file>
+        <file>res/img/sword.png</file>
     </qresource>
 </RCC>

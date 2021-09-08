@@ -1,7 +1,6 @@
 #ifndef CHESSV2_HPP
 #define CHESSV2_HPP
 
-#include "sidepane.hpp"
 #include "board.hpp"
 #include "gamestate.hpp"
 #include "menu.hpp"
@@ -13,7 +12,6 @@ class ChessV2: public QGraphicsView {
     Q_OBJECT
 
     Board *board = nullptr;
-    SidePane *sidePane = nullptr;
     QMediaPlayer *bgm = nullptr;
 
 public:
@@ -35,35 +33,19 @@ public:
         board = new Board();
         setScene(board);
 
-        connect(this, SIGNAL(viewPanned(QPoint)), board, SLOT(onViewPan(QPoint)));
-
-        //sidePane = new SidePane();
-        //sidePane->setText("test");
+        connect(this, SIGNAL(viewChanged(QPointF, double)), board, SLOT(onViewChange(QPointF, double)));
 
 
 
 
-
-        //connect(board, SIGNAL(pieceClicked(Piece*)), sidePane, SLOT(onPieceClick(Piece*)));
 
         //fitInView(QRectF(0, 0, Constants::totalWidth, Constants::totalHeight), Qt::KeepAspectRatio);
 
-        //setDragMode(QGraphicsView::ScrollHandDrag);
 
 
     }
 
 
-    void scrollContentsBy(int dx, int dy) {
-        //scene()->invalidate();
-        QGraphicsView::scrollContentsBy(dx, dy);
-    }
-
-
-    void drawForeground(QPainter *painter, const QRectF&) {
-        painter->resetTransform();
-        //sidePane->render(painter, sidePane->itemsBoundingRect());
-    }
 
 
     void keyPressEvent(QKeyEvent *event) {
@@ -86,18 +68,20 @@ public:
         int angle = event->angleDelta().y();
         double factor;
 
-        if (angle >= 0 && currentScale < 10) {
+        if (angle >= 0 /*&& currentScale < 4*/) {
             factor = 1.2;
-        } else if (angle < 0 && currentScale > 0.1) {
+        } else if (angle < 0 /*&& currentScale > 0.25*/) {
             factor = 0.8;
         } else {
             return;
         }
 
-        //const ViewportAnchor anchor = transformationAnchor();
-        //setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+        const ViewportAnchor anchor = transformationAnchor();
+        setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
         scale(factor, factor);
-        //setTransformationAnchor(anchor);
+        setTransformationAnchor(anchor);
+
+        emit viewChanged(mapToScene(10, 10), factor);
     }
 
     bool panning_ = false;
@@ -116,7 +100,8 @@ public:
             horizontalScrollBar()->setValue(horizontalScrollBar()->value() - delta.x());
             verticalScrollBar()->setValue(verticalScrollBar()->value() - delta.y());
             panStart_ = event->pos();
-            emit viewPanned(delta);
+
+            emit viewChanged(mapToScene(10, 10), 1);
         }
         QGraphicsView::mouseMoveEvent(event);
     }
@@ -128,7 +113,7 @@ public:
 
 signals:
 
-    void viewPanned(QPoint);
+    void viewChanged(QPointF, double);
 
 };
 

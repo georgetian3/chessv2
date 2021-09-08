@@ -9,7 +9,7 @@ namespace Constants {
     const int squareSize = 100;
     const int totalWidth = boardWidth * squareSize;
     const int totalHeight = boardHeight * squareSize;
-    const int buttonSize = squareSize / 4;
+    const int buttonSize = squareSize;
 }
 
 inline bool onBoard(const QPoint& position) {
