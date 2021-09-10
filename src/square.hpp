@@ -10,7 +10,7 @@
 
 
 
-enum class VisionType {unseen, seen, visible};
+//enum class VisionType {unseen, seen, visible};
 
 
 class Square: public QObject, public QGraphicsItem {
@@ -18,37 +18,34 @@ class Square: public QObject, public QGraphicsItem {
     Q_OBJECT
 
     QGraphicsPixmapItem unseenMask_ = QGraphicsPixmapItem(QPixmap(":/res/img/cloud.png").scaled(Constants::squareSize, Constants::squareSize), this);
-    QGraphicsPixmapItem seenMask_ = QGraphicsPixmapItem(this);
     QGraphicsPixmapItem moveMask_ = QGraphicsPixmapItem(this);
-    const QPoint coordinates_;
+    QPoint coordinates_;
 
     bool showOccupiable_ = false;
     Consumable *consumable_ = nullptr;
     Piece *piece_ = nullptr;
     Terrain *terrain_ = nullptr;
 
-    VisionType playerVision_ = VisionType::seen;
-    VisionType enemyVision_;
+    bool playerVision_ = false;
+    //VisionType enemyVision_;
     bool blocksVision_ = false;
 
 
     void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem* item, QWidget* widget) override;
+    void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*) override;
 
-    QRectF boundingRect() const override {
-        return QRectF(0, 0, Constants::squareSize, Constants::squareSize);
-    }
+    QRectF boundingRect() const override;
 
 
 public:
 
-    Square(QPoint coordinates, QGraphicsItem *parent = nullptr);
+    Square(QPoint coordinates = QPoint(0, 0), QGraphicsItem *parent = nullptr);
 
     QPoint coordinates() const;
-    VisionType playerVision() const;
-    void setPlayerVision(VisionType visionType);
+    bool playerVision() const;
+    void setPlayerVision(bool vision);
 
-
+    void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
 
     bool occupiable() const;
     void showOccupiable(int show);

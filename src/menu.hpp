@@ -12,7 +12,7 @@ class Menu: public QObject, public QGraphicsRectItem {
 
     QGraphicsTextItem *textItem;
     ImageButton attackButton_;
-    ImageButton abilityButton_;
+    ImageButton spellButton_;
     ImageButton selectButton_;
     ImageButton skipButton_;
     QGraphicsPixmapItem *bg;
@@ -21,46 +21,54 @@ public:
 
     Menu(QGraphicsRectItem *parent = nullptr):
         attackButton_(ImageButton(":/res/img/attack.png", this)),
-        abilityButton_(ImageButton(":/res/img/ability.png", this)),
+        spellButton_(ImageButton(":/res/img/ability.png", this)),
         selectButton_(ImageButton(":/res/img/select.png", this)),
         skipButton_(ImageButton(":/res/img/skip.png", this)),
         QGraphicsRectItem(parent) {
+
+        setZValue(1000);
 
         bg = new QGraphicsPixmapItem(QPixmap(":/res/img/scroll.png").scaled(400, 600), this);
 
 
 
-        //abilityButton_.hide();
+        //spellButton_.hide();
         //attackButton_.hide();
         //selectButton_.hide();
         //skipButton_.hide();
 
-        QPoint offset(50, 50);
+        QPoint offset(80, 50);
 
         selectButton_.setPos(offset);
         skipButton_.setPos(offset + QPoint(Constants::buttonSize, 0));
         attackButton_.setPos(offset + QPoint(Constants::buttonSize * 2, 0));
-        abilityButton_.setPos(offset + QPoint(Constants::buttonSize * 3, 0));
+        spellButton_.setPos(offset + QPoint(Constants::buttonSize * 3, 0));
 
 
 
-        connect(&abilityButton_, SIGNAL(clicked()), this, SIGNAL(abilityClicked()));
-        connect(&attackButton_,  SIGNAL(clicked()), this, SIGNAL(attackClicked()));
-        connect(&selectButton_,  SIGNAL(clicked()), this, SIGNAL(selectClicked()));
-        connect(&skipButton_,    SIGNAL(clicked()), this, SIGNAL(skipClicked()));
+        connect(&spellButton_,  SIGNAL(clicked()), this, SIGNAL(spellClicked()));
+        connect(&attackButton_, SIGNAL(clicked()), this, SIGNAL(attackClicked()));
+        connect(&selectButton_, SIGNAL(clicked()), this, SIGNAL(selectClicked()));
+        connect(&skipButton_,   SIGNAL(clicked()), this, SIGNAL(skipClicked()));
 
         textItem = new QGraphicsTextItem("test", this);
         textItem->setPos(offset + QPoint(0, Constants::buttonSize));
-        setZValue(10);
+
+        QFont font;
+        font.setFamily("Times New Roman");
+        font.setPointSize(24);
+
+        textItem->setFont(font);
+
     }
 
 
 
 public slots:
 
-    void showAbility(bool show) {
-        abilityButton_.setEnabled(show);
-        //abilityButton_.setVisible(show);
+    void showSpell(bool show) {
+        spellButton_.setEnabled(show);
+        //spellButton_.setVisible(show);
     }
     void showAttack(bool show) {
         attackButton_.setEnabled(show);
@@ -76,19 +84,22 @@ public slots:
     }
     void setText(const QString& text) {
         textItem->setPlainText(text);
+
+    }
+    void appendText(const QString& text) {
+        textItem->setPlainText(textItem->toPlainText() + text);
     }
     void reset() {
-        showAbility(false);
+        showSpell(false);
         showAttack(false);
         showSelect(false);
         showSkip(false);
         setText("");
     }
 
-
 signals:
 
-    void abilityClicked();
+    void spellClicked();
     void attackClicked();
     void selectClicked();
     void skipClicked();

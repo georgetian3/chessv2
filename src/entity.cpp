@@ -28,9 +28,12 @@ QPoint Entity::coordinates() const {
     return coordinates_;
 }
 
-void Entity::setCoordinates(const QPoint &coordinates) {
+void Entity::setCoordinates(const QPoint &coordinates, bool callSetPos) {
     coordinates_ = coordinates;
-    setPos(coordinates_ * Constants::squareSize);
+    if (callSetPos) {
+        setPos(coordinates_ * Constants::squareSize);
+    }
+
 }
 
 

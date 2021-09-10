@@ -11,10 +11,9 @@ protected:
 
     QGraphicsPixmapItem image_;
 
-    //void paint(QPainter *painter, const QStyleOptionGraphicsItem *item, QWidget *widget) override;
-
-    QPoint coordinates_;
     bool blocksVision_ = false;
+    QPoint coordinates_;
+
     QString name_;
     QString description_;
     QString sound;
@@ -34,13 +33,10 @@ public:
     bool blocksVision();
     QString info() const;
     QPoint coordinates() const;
-    void setCoordinates(const QPoint& coordinates);
+    void setCoordinates(const QPoint& coordinates, bool callSetPos = true);
 
 
 signals:
-
-    void entityClicked(Entity*);
-
 
 };
 

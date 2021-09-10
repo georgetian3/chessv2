@@ -1,9 +1,9 @@
 #ifndef BOARD_HPP
 #define BOARD_HPP
 
+#include "ai.hpp"
 #include "menu.hpp"
 #include "imagebutton.hpp"
-#include "rangemarker.hpp"
 #include "consumable.hpp"
 #include "piece.hpp"
 #include "terrain.hpp"
@@ -18,12 +18,14 @@
 #include <string>
 #include <vector>
 
+class AI;
 
 class Board: public QGraphicsScene {
     Q_OBJECT
 
+    //QPixmap background_ = QPixmap();
+    QGraphicsPixmapItem background_;
 
-    QPixmap background_ = QPixmap(":/res/img/bg.jpg");
 
 
     const std::vector<std::vector<PieceType>> playerPiecePositions = {
@@ -33,12 +35,8 @@ class Board: public QGraphicsScene {
          PieceType::king, PieceType::bishop, PieceType::knight, PieceType::rook}
     };
     const std::vector<std::vector<PieceType>> enemyPiecePositions = {
-        {PieceType::minion, PieceType::minion, PieceType::minion, PieceType::minion},
-        {PieceType::minion, PieceType::minion, PieceType::minion, PieceType::minion},
-        {PieceType::minion, PieceType::minion, PieceType::minion, PieceType::minion},
-        {PieceType::minion, PieceType::minion, PieceType::minion, PieceType::minion},
-        {PieceType::minion, PieceType::minion, PieceType::minion, PieceType::minion},
-        {PieceType::minion, PieceType::minion, PieceType::minion, PieceType::minion}
+        {PieceType::minion, PieceType::minion, PieceType::minion, PieceType::minion,
+         PieceType::minion, PieceType::minion, PieceType::minion, PieceType::minion}
     };
     const std::vector<QPoint> moves = {
         QPoint(0, 1),
@@ -47,175 +45,71 @@ class Board: public QGraphicsScene {
         QPoint(-1, 0)
     };
 
-    int movesLeft;
-    bool playerTurn = true;
+    bool playerTurn_ = true;
 
-    std::vector<std::vector<Square*>> squares;
+    std::vector<std::vector<Square*>> squares_;
 
-    Piece* hoveredPiece = nullptr;
-    Piece* focusedPiece = nullptr;
-    Piece* selectedPiece = nullptr;
+    Piece* hoveredPiece_ = nullptr;
+    Piece* focusedPiece_ = nullptr;
+    Piece* selectedPiece_ = nullptr;
+    Piece* king_ = nullptr;
 
-    int dist(Square* a, Square* b) {
-        return (a->coordinates() - b->coordinates()).manhattanLength();
-    }
+    QGraphicsPolygonItem rangeIndicator_;
+    QGraphicsPixmapItem selectedMask_;
+
+    Menu menu;
+
+
+    int dist(QPoint a, QPoint b);
 
     void showRange(Piece *piece);
     void showMoves();
     void movePiece(Square* oldSquare, Square* newSquare);
     void updateVision();
+    void checkIfDead(Piece *piece);
     std::vector<Square*> getVisibleSquares(Square *square);
     bool hasVision(QPoint a, QPoint b);
-    QGraphicsPolygonItem rangeIndicator;
+    int level_ = 1;
 
-    QGraphicsPixmapItem selectedMask_;
-
-    Menu menu;
-
+    void initialSetup();
+    bool checkWin();
     void showSelected();
+    bool canTarget(Piece *piece, const Ability& ability);
+
+    void setMenu(Piece *piece);
+    void setFocusedPiece(Piece *piece);
+    void onSelectChange();
 
 public:
 
     Board(QObject *parent = nullptr);
     ~Board();
-    void setupBoard();
+    void setupBoard(int level);
+    const std::vector<std::vector<Square*>>& squares() const;
 
 
-
-
+private slots:
+    void onViewChange(QPointF map, double scale);
+    void onPieceHoverEnter(Piece *piece);
+    void onPieceHoverLeave(Piece *piece);
 
 public slots:
 
-    void onPieceClick(Piece *piece) {
+    void onPieceClick(Piece *piece);
 
-    }
-
-    void onPieceHoverEnter(Piece *piece) {
-
-        //qDebug() << "Hover enter" << piece->name();
-        hoveredPiece = piece;
-        if (focusedPiece) {
-            return;
-        }
-
-        showRange(piece);
-        menu.setText(piece->info());
-        setMenu(squares[piece->coordinates().x()][piece->coordinates().y()]);
-        /*
-        if (selectedPiece) {
-            if (piece == selectedPiece) {
-                menu.showSkip(true);
-            } else if (!piece->playerPiece() && selectedPiece->inRange(piece)) {
-                menu.showAttack(true);
-            }
-        } else {
-            if (piece->playerPiece()) {
-                menu.showSelect(true);
-            }
-        }
-        */
+    void onSquareClick(Square *square);
+    void onAttackClick();
+    void onSpellClick();
+    void onSelectClick();
+    void onSkipClick();
 
 
-        update();
-    }
-    void onPieceHoverLeave(Piece *piece) {
-        //qDebug() << "Hover leave";
-        if (focusedPiece) {
-            return;
-        }
-        menu.reset();
-
-        showRange(nullptr);
-
-        update();
-
-    }
-
-
-    void onSquareClick(Square *square) {
-        qDebug() << "Clicked square" << square->coordinates();
-
-        if (selectedPiece && square->occupiable()) {
-            movePiece(squares[selectedPiece->coordinates().x()][selectedPiece->coordinates().y()], square);
-            showMoves();
-        }
-        setMenu(square);
-        setFocusedPiece(square->piece());
-        showSelected();
-        update();
-    }
-
-
-    void onAttackClick() {
-        selectedPiece->useAttack(focusedPiece);
-        menu.setText(focusedPiece->info());
-    }
-
-    void onAbilityClick() {
-        selectedPiece->useSpell(focusedPiece);
-        menu.setText(focusedPiece->info());
-    }
-
-    void setMenu(Square *square) {
-        menu.reset();
-        if (!square->piece()) {
-            return;
-        }
-        menu.setText(square->piece()->info());
-        if (selectedPiece) {
-            if (square->piece() == selectedPiece) {
-                menu.showSkip(true);
-            } else if (!square->piece()->playerPiece() && selectedPiece->inRange(square->piece())) {
-                menu.showAttack(true);
-            }
-        } else {
-            if (square->piece()->playerPiece()) {
-                menu.showSelect(true);
-            }
-        }
-    }
-
-    void setFocusedPiece(Piece *piece) {
-        focusedPiece = piece;
-        if (piece) {
-            showRange(focusedPiece);
-            menu.setText(focusedPiece->info());
-        }
-        update();
-    }
-
-
-    void onSelectClick() {
-        selectedPiece = focusedPiece;
-        onSelectChange();
-
-    }
-
-    void onSkipClick() {
-        selectedPiece = nullptr;
-        onSelectChange();
-    }
-
-    void onSelectChange() {
-        showSelected();
-        showMoves();
-        if (selectedPiece) {
-            setMenu(squares[selectedPiece->coordinates().x()][selectedPiece->coordinates().y()]);
-        }
-        //playerTurn = false;
-
-        update();
-    }
-
-    void onViewChange(QPointF map, double scale) {
-        menu.setScale(menu.scale() / scale);
-        menu.setPos(map);
-
-    }
 
 
 
 signals:
+
+    void aiRun(int);
 
 };
 

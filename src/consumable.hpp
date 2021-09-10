@@ -5,12 +5,22 @@
 #include <QtWidgets>
 
 class Consumable: public Entity {
-    std::string stat;
-    int amount;
-    int z_ = 1;
+
+protected:
+
+    QString stat_;
+    int amount_;
+
 public:
+
     Consumable() {
         setZValue(1);
+    }
+    QString stat() const {
+        return stat_;
+    }
+    int amount() const {
+         return amount_;
     }
 };
 
@@ -22,34 +32,48 @@ class Binoculars: public Consumable {
 public:
     Binoculars() {
         setImage(":/res/img/binoculars.png");
+        stat_ = "range";
+        amount_ = 1;
     }
 };
 
 class FirstAid: public Consumable {
-    public:
+
+public:
     FirstAid() {
         setImage(":/res/img/firstaid.png");
+        stat_ = "health";
+        amount_ = 20;
     }
 };
 
 class EnergyDrink: public Consumable {
-    public:
+
+public:
     EnergyDrink() {
         setImage(":/res/img/drink.png");
+        stat_ = "energy";
+        amount_ = 50;
     }
 };
 
 class Shoes: public Consumable {
-    public:
+
+public:
     Shoes() {
         setImage(":/res/img/shoes.png");
+        stat_ = "speed";
+        amount_ = 1;
     }
 };
 
 class Sword: public Consumable {
-    public:
+
+public:
     Sword() {
         setImage(":/res/img/sword.png");
+        stat_ = "damage";
+        amount_ = 20;
     }
 };
 

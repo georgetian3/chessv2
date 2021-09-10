@@ -2,11 +2,11 @@
 
 
 
-Square::Square(QPoint coordinates, QGraphicsItem *parent): coordinates_(coordinates), QGraphicsItem(parent)
+Square::Square(QPoint coordinates, QGraphicsItem *parent): coordinates_(coordinates), QGraphicsItem(parent) {
 
-{
+    setAcceptHoverEvents(true);
 
-    setZValue(2);
+    setZValue(20);
 
     QPixmap pix(Constants::squareSize, Constants::squareSize);
 
@@ -14,10 +14,12 @@ Square::Square(QPoint coordinates, QGraphicsItem *parent): coordinates_(coordina
     moveMask_.setPixmap(pix);
     moveMask_.hide();
 
-    pix.fill(QColor(0, 0, 0, 100));
-    seenMask_.setPixmap(pix);
+    if (true) {
+        pix.fill(QColor(0, 0, 0, 200));
+        unseenMask_.setPixmap(pix);
+    }
 
-    setPlayerVision(VisionType::unseen);
+    setPlayerVision(false);
 
 
     setPos(coordinates_ * Constants::squareSize);
@@ -25,10 +27,19 @@ Square::Square(QPoint coordinates, QGraphicsItem *parent): coordinates_(coordina
 
 }
 
+QRectF Square::boundingRect() const {
+    return Constants::squareRect;
+}
+
+void Square::hoverEnterEvent(QGraphicsSceneHoverEvent *event) {
+    if (playerVision_) {
+        QGraphicsItem::hoverEnterEvent(event);
+    }
+}
+
 void Square::mousePressEvent(QGraphicsSceneMouseEvent *event) {
     //qDebug() << "Clicked square" << coordinates_;
     emit squareClicked(this);
-    QGraphicsItem::mousePressEvent(event);
 }
 
 
@@ -51,18 +62,12 @@ void Square::setCoordinates(const QPoint& coordinates) {
 }
 */
 
-VisionType Square::playerVision() const {
+bool Square::playerVision() const {
     return playerVision_;
 }
-void Square::setPlayerVision(VisionType visionType) {
-    playerVision_ = visionType;
-    unseenMask_.hide();
-    seenMask_.hide();
-    if (visionType == VisionType::unseen) {
-        unseenMask_.show();
-    } else if (visionType == VisionType::seen) {
-        seenMask_.show();
-    }
+void Square::setPlayerVision(bool vision) {
+    playerVision_ = vision;
+    unseenMask_.setVisible(!vision);
 }
 
 
@@ -104,12 +109,7 @@ Piece* Square::piece() const {
 }
 
 void Square::setConsumable(Consumable *consumable) {
-    if (consumable_ && consumable) {
-        return;
-    }
     consumable_ = consumable;
-
-
 }
 Consumable* Square::consumable() const {
     return consumable_;

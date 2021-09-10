@@ -9,6 +9,8 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    ability.cpp \
+    ai.cpp \
     board.cpp \
     chessv2.cpp \
     entity.cpp \
@@ -18,6 +20,8 @@ SOURCES += \
     square.cpp
 
 HEADERS += \
+    ability.hpp \
+    ai.hpp \
     board.hpp \
     chessv2.hpp \
     constants.hpp \
@@ -25,7 +29,6 @@ HEADERS += \
     entity.hpp \
     gamestate.hpp \
     imagebutton.hpp \
-    rangemarker.hpp \
     menu.hpp \
     piece.hpp \
     randomint.hpp \
