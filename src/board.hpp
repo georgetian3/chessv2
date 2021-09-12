@@ -8,7 +8,6 @@
 #include "piece.hpp"
 #include "terrain.hpp"
 #include "square.hpp"
-#include "gamestate.hpp"
 #include "randomint.hpp"
 #include <QtWidgets>
 
@@ -21,13 +20,13 @@
 class AI;
 
 class Board: public QGraphicsScene {
+
     Q_OBJECT
 
-    //QPixmap background_ = QPixmap();
+
     QGraphicsPixmapItem background_;
 
-
-
+    // 我方和敌方的棋子的位置
     const std::vector<std::vector<PieceType>> playerPiecePositions = {
         {PieceType::pawn, PieceType::pawn, PieceType::pawn, PieceType::pawn,
          PieceType::pawn, PieceType::pawn, PieceType::pawn, PieceType::pawn},
@@ -38,6 +37,9 @@ class Board: public QGraphicsScene {
         {PieceType::minion, PieceType::minion, PieceType::minion, PieceType::minion,
          PieceType::minion, PieceType::minion, PieceType::minion, PieceType::minion}
     };
+
+
+    // 上下左右的移动
     const std::vector<QPoint> moves = {
         QPoint(0, 1),
         QPoint(0, -1),
@@ -49,7 +51,7 @@ class Board: public QGraphicsScene {
 
     std::vector<std::vector<Square*>> squares_;
 
-    Piece* hoveredPiece_ = nullptr;
+    //Piece* hoveredPiece_ = nullptr;
     Piece* focusedPiece_ = nullptr;
     Piece* selectedPiece_ = nullptr;
     Piece* king_ = nullptr;
@@ -59,22 +61,30 @@ class Board: public QGraphicsScene {
 
     Menu menu;
 
-
-    int dist(QPoint a, QPoint b);
-
+    // 显示表示视野范围的蓝色线
     void showRange(Piece *piece);
+    // 显示表示能走的步骤
     void showMoves();
+    // 移动一个棋子
     void movePiece(Square* oldSquare, Square* newSquare);
+
+    // 更新用户的视野
     void updateVision();
-    void checkIfDead(Piece *piece);
-    std::vector<Square*> getVisibleSquares(Square *square);
+    // 判断a和b的中点的连线是否经过遮挡视野的方格
     bool hasVision(QPoint a, QPoint b);
     int level_ = 1;
 
+    // 一次性地创造方格和菜单
     void initialSetup();
+    // 判断棋子是否死了，然后做对应的处理
+    void checkIfDead(Piece *piece);
+    // 判断我方和敌方是否赢了，然后做对应的处理
     bool checkWin();
+    // 高亮被选中的棋子
     void showSelected();
+    // 判断一个技能能否用在一个棋子上
     bool canTarget(Piece *piece, const Ability& ability);
+
 
     void setMenu(Piece *piece);
     void setFocusedPiece(Piece *piece);
@@ -84,28 +94,25 @@ public:
 
     Board(QObject *parent = nullptr);
     ~Board();
+    // 根据级别创建对应的敌方兵的数目
     void setupBoard(int level);
     const std::vector<std::vector<Square*>>& squares() const;
 
 
 private slots:
+
+    // 用于将菜单“浮”在界面上
     void onViewChange(QPointF map, double scale);
-    void onPieceHoverEnter(Piece *piece);
-    void onPieceHoverLeave(Piece *piece);
+    //void onPieceHoverEnter(Piece *piece);
+    //void onPieceHoverLeave(Piece *piece);
 
 public slots:
-
-    void onPieceClick(Piece *piece);
 
     void onSquareClick(Square *square);
     void onAttackClick();
     void onSpellClick();
     void onSelectClick();
     void onSkipClick();
-
-
-
-
 
 signals:
 

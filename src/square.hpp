@@ -1,24 +1,18 @@
 #ifndef SQUARE_HPP
 #define SQUARE_HPP
 
-#include "gamestate.hpp"
 #include "consumable.hpp"
 #include "piece.hpp"
 #include "terrain.hpp"
-#include <iostream>
-#include <QtWidgets>
 
-
-
-//enum class VisionType {unseen, seen, visible};
-
+// 实现棋盘上的方格
 
 class Square: public QObject, public QGraphicsItem {
 
     Q_OBJECT
 
-    QGraphicsPixmapItem unseenMask_ = QGraphicsPixmapItem(QPixmap(":/res/img/cloud.png").scaled(Constants::squareSize, Constants::squareSize), this);
-    QGraphicsPixmapItem moveMask_ = QGraphicsPixmapItem(this);
+    QGraphicsPixmapItem unseenMask_{QGraphicsPixmapItem(QPixmap(":/res/img/cloud.png").scaled(Constants::squareSize, Constants::squareSize), this)};
+    QGraphicsPixmapItem moveMask_{QGraphicsPixmapItem(this)};
     QPoint coordinates_;
 
     bool showOccupiable_ = false;
@@ -27,14 +21,13 @@ class Square: public QObject, public QGraphicsItem {
     Terrain *terrain_ = nullptr;
 
     bool playerVision_ = false;
-    //VisionType enemyVision_;
     bool blocksVision_ = false;
 
 
     void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
-    void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*) override;
-
+    void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*) override {};
     QRectF boundingRect() const override;
+   // void hoverEnterEvent(QGraphicsSceneHoverEvent *event) override;
 
 
 public:
@@ -42,22 +35,22 @@ public:
     Square(QPoint coordinates = QPoint(0, 0), QGraphicsItem *parent = nullptr);
 
     QPoint coordinates() const;
+
+    bool blocksVision() const;
     bool playerVision() const;
     void setPlayerVision(bool vision);
-
-    void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
 
     bool occupiable() const;
     void showOccupiable(int show);
 
-    bool blocksVision() const;
 
-    void setTerrain(Terrain *terrain);
     Terrain* terrain() const;
-    void setPiece(Piece *piece);
     Piece* piece() const;
-    void setConsumable(Consumable *consumable);
     Consumable* consumable() const;
+    void setTerrain(Terrain *terrain);
+    void setPiece(Piece *piece);
+    void setConsumable(Consumable *consumable);
+
 
 signals:
 

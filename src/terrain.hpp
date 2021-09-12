@@ -2,61 +2,28 @@
 #define TERRAIN_HPP
 
 #include "entity.hpp"
-#include <QtWidgets>
 
-
-
-
-enum class TerrainType {grass, rock, bush};
+// 定义“地形”类及其子类，“草坪”和“岩石”
 
 class Terrain: public Entity {
 
 protected:
-    int z_ = 0;
-    bool occupiable_ = true;
-    bool hidesOccupant_;
-    bool showOccupiable_ = false;
 
-public:
-
-    Terrain() {
-        setZValue(0);
-    }
-
-    bool occupiable() const {
-        return occupiable_;
-    }
-
-
+    Terrain();
 
 };
 
 class Rock: public Terrain {
 
 public:
-    Rock() {
-        setImage(":/res/img/rock_border.png");
-        blocksVision_ = true;
-        occupiable_ = false;
-    }
-
+    Rock();
 };
 
-class Bush: public Terrain {
-
-    bool occupiable_ = true;
-    bool hidesOccupant_ = false;
-
-};
 
 class Grass: public Terrain {
 
 public:
-    Grass() {
-        setImage(":/res/img/grass_border.jpg");
-        occupiable_ = true;
-        hidesOccupant_ = false;
-    }
+    Grass();
 
 };
 

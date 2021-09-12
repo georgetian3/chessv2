@@ -4,6 +4,8 @@
 #include <chrono>
 #include <random>
 
+// 随机正数发生器，提供[min, max]域里的整数
+
 class RandomInt {
 
     std::uniform_int_distribution<int> distribution;
@@ -11,13 +13,8 @@ class RandomInt {
 
 public:
 
-    RandomInt(int min, int max):
-        distribution(std::uniform_int_distribution<int>(min, max)),
-        generator(std::mt19937_64(std::chrono::system_clock::now().time_since_epoch().count())) {}
-
-    int get() {
-        return distribution(generator);
-    }
+    RandomInt(int min, int max);
+    int get();
 
 };
 

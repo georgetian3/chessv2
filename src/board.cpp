@@ -50,29 +50,21 @@ void Board::setupBoard(int level) {
 
     selectedPiece_ = nullptr;
     focusedPiece_ = nullptr;
-    hoveredPiece_ = nullptr;
+    //hoveredPiece_ = nullptr;
     playerTurn_ = true;
     menu.reset();
     rangeIndicator_.hide();
     for (auto& vec: squares_) {
         for (auto square: vec) {
             if (square->consumable()) {
-                //removeItem(square->consumable());
-                //delete square->consumable();
                 square->consumable()->hide();
             }
             if (square->terrain()) {
-                //removeItem(square->terrain());
-                //delete square->terrain();
                 square->terrain()->hide();
             }
             if (square->piece()) {
-                //removeItem(square->piece());
-                //delete square->piece();
                 square->piece()->hide();
             }
-            //removeItem(square);
-            //delete square;
             square->hide();
         }
     }
@@ -101,8 +93,8 @@ void Board::setupBoard(int level) {
             if (playerPiecePositions[y][x] == PieceType::king) {
                 king_ = piece;
             }
-            connect(piece, SIGNAL(hoverEnter(Piece*)), this, SLOT(onPieceHoverEnter(Piece*)));
-            connect(piece, SIGNAL(hoverLeave(Piece*)), this, SLOT(onPieceHoverLeave(Piece*)));
+            //connect(piece, SIGNAL(hoverEnter(Piece*)), this, SLOT(onPieceHoverEnter(Piece*)));
+            //connect(piece, SIGNAL(hoverLeave(Piece*)), this, SLOT(onPieceHoverLeave(Piece*)));
             piece->setCoordinates(QPoint(x + xOffset, y + yOffset));
             squares_[x + xOffset][y + yOffset]->setPiece(piece);
             addItem(piece);
@@ -113,10 +105,10 @@ void Board::setupBoard(int level) {
 
     xOffset = (Constants::boardWidth - enemyPiecePositions[0].size()) / 2;
     for (int x = 0; x < enemyPiecePositions[0].size(); x++) {
-        for (int y = enemyPiecePositions.size() - 1; y >= 0 ; y--) {
-            Piece *piece = buildPiece(enemyPiecePositions[y][x]);
-            connect(piece, SIGNAL(hoverEnter(Piece*)), this, SLOT(onPieceHoverEnter(Piece*)));
-            connect(piece, SIGNAL(hoverLeave(Piece*)), this, SLOT(onPieceHoverLeave(Piece*)));
+        for (int y = level - 1/*enemyPiecePositions.size() - 1*/; y >= 0 ; y--) {
+            Piece *piece = buildPiece(enemyPiecePositions[0][x]);
+            //connect(piece, SIGNAL(hoverEnter(Piece*)), this, SLOT(onPieceHoverEnter(Piece*)));
+            //connect(piece, SIGNAL(hoverLeave(Piece*)), this, SLOT(onPieceHoverLeave(Piece*)));
             squares_[x + xOffset][y]->setPiece(piece);
             piece->setCoordinates(QPoint(x + xOffset, y));
             addItem(piece);
@@ -246,7 +238,7 @@ void Board::showRange(Piece *piece) {
 
     //qDebug() << "Showing Range" << piece->coordinates();
 
-    int range = piece->getStat("range");
+    int range = piece->stat("range");
 
     QPoint start(0, range + 1);
     QPoint startPoint = start;
@@ -304,6 +296,7 @@ void Board::showRange(Piece *piece) {
 
 }
 
+
 void Board::updateVision() {
     qDebug() << "Updating vision";
     for (auto& vec: squares_) {
@@ -315,11 +308,11 @@ void Board::updateVision() {
         for (int j = 0; j < Constants::boardHeight; j++) {
             Piece *piece = squares_[i][j]->piece();
             if (piece && piece->playerPiece()) {
-                int vision = piece->getStat("range");
+                int vision = piece->stat("range");
                 for (int x = -vision; x <= vision; x++) {
                     for (int y = -(vision - abs(x)); y <= vision - abs(x); y++) {
                         QPoint visionCoord = piece->coordinates() + QPoint(x, y);
-                        if (onBoard(visionCoord) && hasVision(piece->coordinates(), visionCoord)) {
+                        if (onBoard(visionCoord) && !squares_[visionCoord.x()][visionCoord.y()]->playerVision() && hasVision(piece->coordinates(), visionCoord)) {
                             squares_[i + x][j + y]->setPlayerVision(true);
                         }
                     }
@@ -330,9 +323,6 @@ void Board::updateVision() {
     update();
 }
 
-int Board::dist(QPoint a, QPoint b) {
-    return (a - b).manhattanLength();
-}
 
 
 bool Board::hasVision(QPoint a, QPoint b) {
@@ -367,6 +357,7 @@ bool Board::hasVision(QPoint a, QPoint b) {
 
 }
 
+/*
 void Board::onPieceHoverEnter(Piece *piece) {
     //qDebug() << "Hover enter" << piece->coordinates();
     if (focusedPiece_) {
@@ -390,12 +381,9 @@ void Board::onPieceHoverLeave(Piece *piece) {
     update();
 
 }
-void Board::onPieceClick(Piece *piece) {
-
-}
-
+*/
 bool Board::checkWin() {
-    qDebug() << "checking win";
+    qDebug() << "Checking win";
     if (!king_) {
         qDebug() << "LOST-------------------------------------";
         menu.setText("Lose!");
@@ -417,7 +405,7 @@ void Board::onSquareClick(Square *square) {
     //qDebug() << "Clicked square" << square->coordinates();
 
     if (selectedPiece_ && square->occupiable()) {
-        if (QGuiApplication::keyboardModifiers() & 0x04000000 ||
+        if (QGuiApplication::keyboardModifiers() & 0x04000000 || // 按 control 键后能随意移动一个棋子，用于debugging
             dist(selectedPiece_->coordinates(), square->coordinates()) == 1) {
             movePiece(squares_[selectedPiece_->coordinates().x()][selectedPiece_->coordinates().y()], square);
         }
@@ -453,7 +441,7 @@ void Board::onSpellClick() {
 }
 
 void Board::checkIfDead(Piece *piece) {
-    if (piece->getStat("health") <= 0) {
+    if (piece->stat("health") <= 0) {
 
         if (piece == king_) {
             king_ = nullptr;

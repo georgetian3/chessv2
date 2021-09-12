@@ -13,11 +13,15 @@ SOURCES += \
     ai.cpp \
     board.cpp \
     chessv2.cpp \
+    consumable.cpp \
     entity.cpp \
-    gamestate.cpp \
+    imagebutton.cpp \
     main.cpp \
+    menu.cpp \
     piece.cpp \
-    square.cpp
+    randomint.cpp \
+    square.cpp \
+    terrain.cpp
 
 HEADERS += \
     ability.hpp \
@@ -27,7 +31,6 @@ HEADERS += \
     constants.hpp \
     consumable.hpp \
     entity.hpp \
-    gamestate.hpp \
     imagebutton.hpp \
     menu.hpp \
     piece.hpp \

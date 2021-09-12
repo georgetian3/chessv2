@@ -4,9 +4,9 @@
 
 Square::Square(QPoint coordinates, QGraphicsItem *parent): coordinates_(coordinates), QGraphicsItem(parent) {
 
-    setAcceptHoverEvents(true);
+    //setAcceptHoverEvents(true);
 
-    setZValue(20);
+    setZValue(4);
 
     QPixmap pix(Constants::squareSize, Constants::squareSize);
 
@@ -14,42 +14,32 @@ Square::Square(QPoint coordinates, QGraphicsItem *parent): coordinates_(coordina
     moveMask_.setPixmap(pix);
     moveMask_.hide();
 
+    // 为了能够看到AI的操作，将掩盖没有视野的方格变透明
+    // 如果想看实际用户会见到的场景，则把true改成false
     if (true) {
-        pix.fill(QColor(0, 0, 0, 200));
+        pix.fill(QColor(0, 0, 0, 100));
         unseenMask_.setPixmap(pix);
     }
 
     setPlayerVision(false);
-
-
     setPos(coordinates_ * Constants::squareSize);
-
 
 }
 
 QRectF Square::boundingRect() const {
     return Constants::squareRect;
 }
-
+/*
 void Square::hoverEnterEvent(QGraphicsSceneHoverEvent *event) {
     if (playerVision_) {
         QGraphicsItem::hoverEnterEvent(event);
     }
 }
+*/
 
 void Square::mousePressEvent(QGraphicsSceneMouseEvent *event) {
-    //qDebug() << "Clicked square" << coordinates_;
     emit squareClicked(this);
 }
-
-
-void Square::paint(QPainter *painter, const QStyleOptionGraphicsItem*, QWidget*) {
-    if (moveMask_.isVisible()) {
-        //painter->drawPixmap(0, 0, Constants::squareSize, Constants::squareSize, moveMask_.pixmap());
-    }
-}
-
-
 
 QPoint Square::coordinates() const {
     return coordinates_;
@@ -81,7 +71,7 @@ void Square::showOccupiable(int show) {
 }
 
 bool Square::blocksVision() const {
-    return (terrain_ ? terrain_->blocksVision() : false) || false &&
+    return terrain_->blocksVision() &&
            (piece_ ? piece_->blocksVision() : false);
 }
 void Square::setTerrain(Terrain *terrain) {

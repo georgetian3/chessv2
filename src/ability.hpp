@@ -7,32 +7,25 @@ class Piece;
 
 enum class TargetType {none, ally, enemy, all};
 
+// 定义“技能”类
+
 class Ability {
-protected:
+
     TargetType target_;
-    int cost_;
     QString stat_;
+    int cost_;
     int amount_;
+
 public:
-    void setTarget(TargetType target) {
-        target_ = target;
-    }
-    void setCost(int cost) {
-        cost_ = cost;
-    }
-    void setStat(QString stat) {
-        stat_ = stat;
-    }
-    void setAmount(int amount) {
-        amount_ = amount;
-    }
-    TargetType target() const {
-        return target_;
-    }
-    int cost() const {
-        return cost_;
-    }
+
+    void setTarget(TargetType target);
+    void setCost(int cost);
+    void setStat(QString stat);
+    void setAmount(int amount);
+    TargetType target() const;
+    int cost() const;
     void perform(Piece *piece);
+
 };
 
 

@@ -1,16 +1,13 @@
 #include "ai.hpp"
-#include "board.hpp"
+#include "randomint.hpp"
 
 #include <cmath>
 
-AI::AI(const std::vector<std::vector<Square*>>& squares):squares_(squares) {
-
-}
+AI::AI(const std::vector<std::vector<Square*>>& squares):squares_(squares) {}
 
 void AI::algorithm(int level) {
-    QPoint target1(Constants::boardWidth / 2 - 1, 0);
-    QPoint target2(Constants::boardWidth / 2, 0);
 
+    // 寻找离目标方格最近的白色棋子，存到`closest`中
     Piece *closest = nullptr;
     for (int i = 0; i < Constants::boardWidth; i++) {
         for (int j = 0; j < Constants::boardHeight; j++) {
@@ -23,26 +20,25 @@ void AI::algorithm(int level) {
                     closest = piece;
                     continue;
                 }
-                if (std::min(dist(piece->coordinates(), target1), dist(piece->coordinates(), target2)) <
-                    std::min(dist(closest->coordinates(), target1), dist(closest->coordinates(), target2))) {
+                if (std::min(dist(piece->coordinates(), Constants::target1), dist(piece->coordinates(), Constants::target2)) <
+                    std::min(dist(closest->coordinates(), Constants::target1), dist(closest->coordinates(), Constants::target2))) {
                     closest = piece;
                 }
             }
         }
     }
-    qDebug() << "closest" << closest->coordinates();
 
     std::vector<Piece*> aiPieces;
 
-    //Piece *moveCloser = nullptr;
-    //int deltaX, deltaY;
+    // 若closest在一个黑色棋子的视野范围内，则让黑色棋子攻击closest，并结束这个回合
+
     for (int i = 0; i < Constants::boardWidth; i++) {
         for (int j = 0; j < Constants::boardHeight; j++) {
             Piece *piece = squares_[i][j]->piece();
             if (piece && !piece->playerPiece()) {
                 aiPieces.push_back(piece);
                 if (piece->inRange(closest)) {
-                    qDebug() << "AI attacking" << i << j;
+                    //qDebug() << "AI attacking" << i << j;
                     emit squareClicked(squares_[i][j]);
                     emit selectClicked();
                     emit squareClicked(squares_[closest->coordinates().x()][closest->coordinates().y()]);
@@ -55,15 +51,15 @@ void AI::algorithm(int level) {
         }
     }
 
-    qDebug() << "Finding movable piece";
+    // 否则，任意选中一个可移动的黑色棋子...
 
     Piece* selectedPiece = nullptr;
 
-    RandomInt randomPiece(0, aiPieces.size() - 1);
+    RandomInt randomPiece(0, static_cast<int>(aiPieces.size()) - 1);
 
     while (!selectedPiece) {
         Piece *piece = aiPieces[randomPiece.get()];
-        for (const auto& move: moves) {
+        for (const auto& move: moves_) {
             if (onBoard(piece->coordinates() + move)) {
                 selectedPiece = piece;
                 break;
@@ -76,11 +72,11 @@ void AI::algorithm(int level) {
     emit selectClicked();
     Sleep(1000);
 
-    qDebug() << "Moving piece";
+    // ...并随机地移动它，直到用掉所有步骤
 
     while (selectedPiece->movesLeft()) {
         std::vector<QPoint> newCoords;
-        for (const auto& move: moves) {
+        for (const auto& move: moves_) {
             QPoint newCoord = selectedPiece->coordinates() + move;
             if (onBoard(newCoord) && squares_[newCoord.x()][newCoord.y()]->occupiable()) {
                 newCoords.push_back(newCoord);
@@ -92,14 +88,12 @@ void AI::algorithm(int level) {
         Sleep(1000);
     }
 
-    qDebug() << "AI SKIPPING";
     emit skipClicked();
-    qDebug() << "AI FINISHED -----------------------------";
 
 }
 
 void AI::run(int level) {
-    qDebug() << "AI RUNNING ------------------------------------";
+
     QThread* runThread = QThread::create(&AI::algorithm, this, level);
     runThread->start();
 

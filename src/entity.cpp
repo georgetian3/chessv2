@@ -1,23 +1,23 @@
 #include "entity.hpp"
 
-
-void Entity::paint(QPainter *painter, const QStyleOptionGraphicsItem*, QWidget*) {
-    //painter->drawPixmap(0, 0, Constants::squareSize, Constants::squareSize, image_);
-}
-
-Entity::Entity(): image_(QGraphicsPixmapItem(this)) {
-    //qDebug() << "entity constructor";
+Entity::Entity() {
     setAcceptHoverEvents(true);
 }
 
+QRectF Entity::boundingRect() const {
+    return Constants::squareRect;
+}
 
+bool Entity::occupiable() const {
+    return occupiable_;
+}
 
-bool Entity::blocksVision() {
+bool Entity::blocksVision() const {
     return blocksVision_;
 }
 
 QString Entity::info() const {
-    return name_ + '\n' + description_;
+    return name_;
 }
 
 void Entity::setImage(const QString &imagePath) {

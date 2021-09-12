@@ -1,12 +1,11 @@
 #include "constants.hpp"
 #include "piece.hpp"
 
-
 Piece::Piece() {
-    setAcceptHoverEvents(true);
+    //setAcceptHoverEvents(true);
     setZValue(1);
-    flashTimer.setInterval(200);
-    connect(&flashTimer, SIGNAL(timeout()), this, SLOT(flash()));
+    flashTimer_.setInterval(200);
+    connect(&flashTimer_, SIGNAL(timeout()), this, SLOT(flash()));
 }
 const Ability& Piece::spell() const {
     return spell_;
@@ -17,7 +16,7 @@ void Piece::moved() {
     }
 }
 void Piece::skipped() {
-    movesLeft_ = getStat("speed");
+    movesLeft_ = stat("speed");
     usedAttack_ = false;
 }
 int Piece::movesLeft() const {
@@ -32,13 +31,13 @@ bool Piece::inRange(Piece* piece) {
     if (!piece) {
         return false;
     }
-    if ((coordinates_ - piece->coordinates_).manhattanLength() <= getStat("range")) {
+    if ((coordinates_ - piece->coordinates_).manhattanLength() <= stat("range")) {
         return true;
     }
     return false;
 }
 
-int Piece::getStat(const QString& stat) const {
+int Piece::stat(const QString& stat) const {
     auto it = stats_.find(stat);
     if (it != stats_.end()) {
         return it->second;
@@ -65,7 +64,7 @@ bool Piece::playerPiece() const {
 
 
 
-
+/*
 
 void Piece::hoverEnterEvent(QGraphicsSceneHoverEvent *event) {
     //qDebug() << "hover enter";
@@ -76,28 +75,22 @@ void Piece::hoverLeaveEvent(QGraphicsSceneHoverEvent *event) {
     emit hoverLeave(this);
     QGraphicsItem::hoverLeaveEvent(event);
 }
-
-
 void Piece::mousePressEvent(QGraphicsSceneMouseEvent *event) {
     //qDebug() << "Clicked piece" << coordinates_.x() << coordinates_.y();
     emit clicked(this);
     QGraphicsItem::mousePressEvent(event);
 }
 
+*/
 
 
-
-
-const std::unordered_map<QString, int>& Piece::stats() const {
-    return stats_;
-}
 
 void Piece::flash() {
     static int counter = 0;
     setVisible(!isVisible());
     counter++;
     if (counter == 5) {
-        flashTimer.stop();
+        flashTimer_.stop();
         counter = 0;
         show();
     }
@@ -111,7 +104,7 @@ void Piece::setStat(const QString& stat, int amount) {
         if ((*it).second < 0) {
             (*it).second = 0;
         }
-        flashTimer.start();
+        flashTimer_.start();
     }
 }
 
@@ -139,5 +132,149 @@ void Piece::useSpell(Piece *piece) {
 }
 
 bool Piece::canUseSpell() const {
-    return !usedSpell_ && spell_.cost() <= getStat("energy");
+    return spell_.cost() <= stat("energy");
+}
+
+Pawn::Pawn() {
+    setImage(":/res/img/pawn_w.png");
+    name_ = "Pawn";
+    playerPiece_ = true;
+    stats_ = {
+        {"health", 10},
+        {"damage", 5},
+        {"energy", 100},
+        {"speed", 5},
+        {"range", 5},
+    };
+    spell_.setAmount(-1);
+    spell_.setStat("range");
+    spell_.setTarget(TargetType::enemy);
+    spell_.setCost(50);
+    movesLeft_ = stat("speed");
+}
+
+Rook::Rook() {
+    setImage(":/res/img/rook_w.png");
+    name_ = "Rook";
+    playerPiece_ = true;
+    stats_ = {
+        {"health", 50},
+        {"damage", 20},
+        {"energy", 100},
+        {"speed", 2},
+        {"range", 3},
+    };
+    spell_.setAmount(-5);
+    spell_.setStat("damage");
+    spell_.setTarget(TargetType::enemy);
+    spell_.setCost(50);
+    movesLeft_ = stat("speed");
+}
+
+Knight::Knight() {
+    setImage(":/res/img/knight_w.png");
+    name_ = "Knight";
+    playerPiece_ = true;
+    stats_ = {
+        {"health", 20},
+        {"damage", 5},
+        {"energy", 100},
+        {"speed", 5},
+        {"range", 3},
+    };
+    spell_.setAmount(-1);
+    spell_.setStat("speed");
+    spell_.setTarget(TargetType::enemy);
+    spell_.setCost(50);
+    movesLeft_ = stat("speed");
+}
+
+Bishop::Bishop() {
+    setImage(":/res/img/bishop_w.png");
+    name_ = "Bishop";
+    playerPiece_ = true;
+    stats_ = {
+        {"health", 100},
+        {"damage", 5},
+        {"energy", 100},
+        {"speed", 3},
+        {"range", 3},
+    };
+    spell_.setAmount(10);
+    spell_.setStat("health");
+    spell_.setTarget(TargetType::ally);
+    spell_.setCost(50);
+    movesLeft_ = stat("speed");
+}
+
+Queen::Queen() {
+    setImage(":/res/img/queen_w.png");
+    name_ = "Queen";
+    playerPiece_ = true;
+    stats_ = {
+        {"health", 10},
+        {"damage", 100},
+        {"energy", 100},
+        {"speed", 3},
+        {"range", 5},
+    };
+    spell_.setAmount(1);
+    spell_.setStat("range");
+    spell_.setTarget(TargetType::enemy);
+    spell_.setCost(50);
+    movesLeft_ = stat("speed");
+}
+
+King::King() {
+    setImage(":/res/img/king_w.png");
+    name_ = "King";
+    playerPiece_ = true;
+    stats_ = {
+        {"health", 5},
+        {"damage", 0},
+        {"energy", 0},
+        {"speed", 1},
+        {"range", 1},
+    };
+    spell_.setTarget(TargetType::none);
+    movesLeft_ = stat("speed");
+}
+
+
+Minion::Minion() {
+    setImage(":/res/img/pawn_b.png");
+    name_ = "Minion";
+    playerPiece_ = false;
+    stats_ = {
+        {"health", 20},
+        {"damage", 5},
+        {"energy", 100},
+        {"speed", 10},
+        {"range", 5},
+    };
+    spell_.setTarget(TargetType::none);
+    movesLeft_ = stat("speed");
+}
+
+
+Piece* buildPiece(PieceType pieceType) {
+    switch (pieceType) {
+        case PieceType::pawn:
+            return new Pawn();
+        case PieceType::rook:
+            return new Rook();
+        case PieceType::knight:
+            return new Knight();
+        case PieceType::bishop:
+            return new Bishop();
+        case PieceType::queen:
+            return new Queen();
+        case PieceType::king:
+            return new King();
+        case PieceType::minion:
+            return new Minion();
+        default:
+            qDebug() << "buildPiece unknown piecetype";
+            return nullptr;
+    }
 }

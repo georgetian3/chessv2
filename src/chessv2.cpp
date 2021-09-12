@@ -4,10 +4,8 @@ ChessV2::ChessV2(QWidget *parent): QGraphicsView(parent), ai_(board_.squares()) 
 
     //qDebug() << "ChessV2 ctor";
 
-    //bgm.setMedia(QUrl("qrc:res/audio/bgm.mp3"));
-    //bgm.play();
-
-
+    bgm.setMedia(QUrl("qrc:res/audio/bgm.mp3"));
+    bgm.play();
 
     setWindowState(Qt::WindowMaximized);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -18,15 +16,11 @@ ChessV2::ChessV2(QWidget *parent): QGraphicsView(parent), ai_(board_.squares()) 
     connect(this, SIGNAL(viewChanged(QPointF, double)), &board_, SLOT(onViewChange(QPointF, double)));
     connect(&board_, SIGNAL(aiRun(int)), &ai_, SLOT(run(int)));
 
-
     connect(&ai_, SIGNAL(squareClicked(Square*)), &board_, SLOT(onSquareClick(Square*)));
     connect(&ai_, SIGNAL(attackClicked()), &board_, SLOT(onAttackClick()));
     connect(&ai_, SIGNAL(spellClicked()), &board_, SLOT(onSpellClick()));
     connect(&ai_, SIGNAL(selectClicked()), &board_, SLOT(onSelectClick()));
     connect(&ai_, SIGNAL(skipClicked()), &board_, SLOT(onSkipClick()));
-
-
-
 
 
     //fitInView(QRectF(0, 0, Constants::totalWidth, Constants::totalHeight), Qt::KeepAspectRatio);
@@ -40,8 +34,7 @@ ChessV2::ChessV2(QWidget *parent): QGraphicsView(parent), ai_(board_.squares()) 
 
 void ChessV2::keyPressEvent(QKeyEvent *event) {
     switch (event->key()) {
-        case Qt::Key_F12: // toggle fullscreen
-            qDebug() << "F12";
+        case Qt::Key_F12: // 全屏
             setWindowState(windowState() == Qt::WindowFullScreen ? Qt::WindowNoState : Qt::WindowFullScreen);
             break;
         default:
@@ -67,7 +60,7 @@ void ChessV2::wheelEvent(QWheelEvent *event) {
     scale(factor, factor);
     setTransformationAnchor(anchor);
 
-    emit viewChanged(mapToScene(10, 10), factor);
+    emit viewChanged(mapToScene(0, 0), factor);
 }
 
 
@@ -85,7 +78,7 @@ void ChessV2::mouseMoveEvent(QMouseEvent *event) {
         verticalScrollBar()->setValue(verticalScrollBar()->value() - delta.y());
         panStart_ = event->pos();
 
-        emit viewChanged(mapToScene(10, 10), 1);
+        emit viewChanged(mapToScene(0, 0), 1);
     }
     QGraphicsView::mouseMoveEvent(event);
 }

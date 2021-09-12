@@ -2,45 +2,44 @@
 #define ENTITY_H
 
 #include "constants.hpp"
-#include <QtWidgets>
+#include <QGraphicsPixmapItem>
 
 class Entity: public QObject, public QGraphicsItem {
+
     Q_OBJECT
 
 protected:
 
-    QGraphicsPixmapItem image_;
+    QGraphicsPixmapItem image_ = QGraphicsPixmapItem(this);
 
+    bool occupiable_ = true;
     bool blocksVision_ = false;
+
     QPoint coordinates_;
-
     QString name_;
-    QString description_;
-    QString sound;
     QString info_;
-    int z_;
 
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem*, QWidget*) override;
-    QRectF boundingRect() const override {
-        return QRectF(0, 0, Constants::squareSize, Constants::squareSize);
-    }
+    void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*) override {}
+    QRectF boundingRect() const override;
 
 public:
 
     Entity();
 
     void setImage(const QString& imagePath = ":/res/img/placeholder.png");
-    bool blocksVision();
+    bool blocksVision() const;
+    bool occupiable() const;
+
     QString info() const;
+
     QPoint coordinates() const;
+
+    // setCoordinates会默认调用QGraphicsItem的setPos函数，
+    // 如果通过其他方式更改本类的位置，比如平移动画，可以设callSetPos为false，
+    // 避免再次调用setPos
     void setCoordinates(const QPoint& coordinates, bool callSetPos = true);
 
-
-signals:
-
 };
-
-
 
 
 #endif // ENTITY_H
